@@ -2,6 +2,7 @@ package com.tech.blog.dao;
 
 import com.tech.blog.entities.Categories;
 import com.tech.blog.entities.Posts;
+import com.tech.blog.entities.Users;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -100,4 +101,43 @@ public class PostDao {
         return postList;
     }
 
+    public Posts getPostByPostId(Integer postId) {
+        Posts posts = new Posts();
+        try {
+            String query = "SELECT * FROM posts WHERE id = ?";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setInt(1, postId);
+            ResultSet set = pstmt.executeQuery();
+            if (set.next()) {
+                posts.setId(set.getInt("id"));
+                posts.setTitle(set.getString("title"));
+                posts.setContent(set.getString("content"));
+                posts.setCode(set.getString("code"));
+                posts.setImage(set.getString("image"));
+                posts.setPostedAt(set.getString("posted_at"));
+                posts.setCategoryId(set.getInt("category_id"));
+                posts.setUserId(set.getInt("user_id"));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return posts;
+    }
+
+    public String getUserByUserId(Integer userId) {
+//        Users user = new Users(); 
+        String username = "";
+        try {
+            String query = "SELECT * FROM users WHERE id = ?";
+            PreparedStatement pstmt = con.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            ResultSet set = pstmt.executeQuery();
+            if (set.next()) {
+                username = set.getString("name");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return username;
+    }
 }
