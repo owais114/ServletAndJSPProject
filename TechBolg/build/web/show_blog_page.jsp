@@ -1,3 +1,4 @@
+<%@page import="com.tech.blog.dao.LikeDao"%>
 <%@page import="com.tech.blog.entities.Categories"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.tech.blog.entities.Users"%>
@@ -12,6 +13,7 @@
     } else {
         Integer postId = Integer.parseInt(request.getParameter("postId"));
         PostDao postDao = new PostDao(ConnectionProvider.getConnection());
+        LikeDao likeDao = new LikeDao(ConnectionProvider.getConnection());
         Posts post = postDao.getPostByPostId(postId);
         String username = postDao.getUserByUserId(post.getUserId());
         ArrayList<Categories> categoryList = postDao.getAllCategories();
@@ -98,7 +100,10 @@
                             <p class="card-code"><%= post.getCode()%></p>
                         </div>
                         <div class="card-footer text-muted">
-                            <a href="#" class="btn primary-background btn-lg text-light"><i class="fa fa-thumbs-up"></i> 10</a>
+                            <% Integer success = likeDao.isLikedExistByUser(post.getId(), user.getId());%>
+                            <a href="#" onclick="getLiked(<%= post.getId()%>, <%= user.getId()%>)" class="btnLike btn <%= success > 0 ? "btn-dark" : "primary-background"%> btn-lg text-light"><i class="fa fa-thumbs-up"></i> <span class="like_counter"> <%= likeDao.countLikedByPostId(post.getId())%></span></a>
+
+
                             <a href="#" class="btn primary-background btn-lg text-light"><i class="fa fa-commenting"></i> 10</a>
                         </div>
                     </div>
@@ -241,22 +246,22 @@
         <!--custom js link-->
         <script src="js/script.js" type="text/javascript"></script>
         <script>
-            $(document).ready(function () {
-                let showHide = false;
-                $("#edit_button").click(function () {
-                    if (!showHide) {
-                        $("#profile_details").hide();
-                        $("#edit_profile_details").show();
-                        $("#edit_button").text("Back");
-                        showHide = true;
-                    } else {
-                        $("#profile_details").show();
-                        $("#edit_profile_details").hide();
-                        $("#edit_button").text("Edit");
-                        showHide = false;
-                    }
-                });
-            });
+                                $(document).ready(function () {
+                                    let showHide = false;
+                                    $("#edit_button").click(function () {
+                                        if (!showHide) {
+                                            $("#profile_details").hide();
+                                            $("#edit_profile_details").show();
+                                            $("#edit_button").text("Back");
+                                            showHide = true;
+                                        } else {
+                                            $("#profile_details").show();
+                                            $("#edit_profile_details").hide();
+                                            $("#edit_button").text("Edit");
+                                            showHide = false;
+                                        }
+                                    });
+                                });
         </script>
         <script>
             $(document).ready(function () {
@@ -278,6 +283,39 @@
                     });
                 });
             });
+        </script>
+        <script>
+            function getLiked(postId, userId) {
+                alert(postId + " " + userId);
+                let operation = "liked";
+                $.ajax({
+                    url: "likepostservlet",
+                    type: "GET",
+                    data: {
+                        postId: postId,
+                        userId: userId,
+                        operation: operation
+                    },
+                    success: function (data, textShown, XMLHttpRequest) {
+                        let counter = $(".like_counter").html();
+                        if (data.trim() === "created") {
+                            counter++;
+                            $(".btnLike").removeClass("primary-background");
+                            $(".btnLike").addClass("btn-dark");
+                        } else if (data.trim() === "deleted") {
+                            counter--;
+                            $(".btnLike").removeClass("btn-dark");
+                            $(".btnLike").addClass("primary-background");
+                        }
+                        $(".like_counter").html(counter);
+                        console.log(data);
+                    },
+                    error: function (XMLHttpRequest, textShown, errorThrown) {
+                        console.log(errorThrown);
+                    }
+                });
+            }
+
         </script>
     </body>
 </html>

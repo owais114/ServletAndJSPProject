@@ -49,4 +49,12 @@
         <servlet-name>SavePostServlet</servlet-name>
         <url-pattern>/savepostservlet</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>LikedServlet</servlet-name>
+        <servlet-class>com.tech.blog.servlets.LikedServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LikedServlet</servlet-name>
+        <url-pattern>/likepostservlet</url-pattern>
+    </servlet-mapping>
 </web-app>
